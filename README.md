@@ -69,6 +69,16 @@ Designed to reduce manual effort and improve job application success.
 
 ---
 -
+## screenshoits
+-workflow:
+<img width="1920" height="1080" alt="Screenshot 2026-02-21 045633" src="https://github.com/user-attachments/assets/e775f531-9cf6-4b54-9d35-b8ba868c8983" />
+-trigger:
+<img width="1066" height="999" alt="Screenshot 2026-02-21 050138" src="https://github.com/user-attachments/assets/2ac098fb-6ddf-49f8-9883-d369839c4ea5" />
+-output:
+<img width="1920" height="1008" alt="Screenshot 2026-02-21 050310" src="https://github.com/user-attachments/assets/7a494bb3-56d5-4ab5-882d-d5f58a1ff292" />
+
+
+
 
 ## 🛠️ Future Improvements
 - Multi-format export (PDF, DOCX)
