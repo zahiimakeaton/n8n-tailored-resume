@@ -1,0 +1,261 @@
+{
+  "name": "My workflow 3",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=job url :{{ $('On form submission').item.json['JOB URL'] }}\nother portfolios :{{ $('On form submission').item.json['Anything else'] }}\nResume :{{ $json.text }}\n\n",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Your are a resume tailoring Ai you are given:\n\n1>My resume\n2.A job which I'm applying to\n3.Lnks to additional portfolios\n\nYour are provided a web search tool(tavily) with which you can access any links and it is mandatory that you do it\n\nBased on this information tailor my resume for this job application i.e, rewrite it"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "c289cbd2-2743-4b5a-8d1c-0de4913d1855",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "formTitle": "RESUME FILE",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "JOB URL"
+            },
+            {
+              "fieldLabel": "Anything else"
+            },
+            {
+              "fieldLabel": "Resume",
+              "fieldType": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -496,
+        16
+      ],
+      "id": "ae078b5e-5c9c-4719-8e68-937465da9e39",
+      "name": "On form submission",
+      "webhookId": "270c5fc1-b3f0-42ef-b319-3830cb25ecee"
+    },
+    {
+      "parameters": {
+        "model": "meta-llama/llama-4-scout-17b-16e-instruct",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -144,
+        96
+      ],
+      "id": "9243de7d-6b36-4a83-bd02-cc496caf4001",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "FSlU0oMwO9DEEShW",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Resume",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        -288,
+        0
+      ],
+      "id": "7292cc46-076d-40b8-8d69-e58aebd0fc16",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"resume\":\"\",\n  \"title\":\"\"\n  \n\t\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        320,
+        144
+      ],
+      "id": "558e2db0-b478-43be-8612-bdf18400d99a",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Query', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "@tavily/n8n-nodes-tavily.tavilyTool",
+      "typeVersion": 1,
+      "position": [
+        208,
+        208
+      ],
+      "id": "31508abf-6641-4a4d-b883-c17f813c8e0f",
+      "name": "Search in Tavily",
+      "credentials": {
+        "tavilyApi": {
+          "id": "fGaXeGCPiLLFFPtG",
+          "name": "Tavily account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "default",
+        "title": "={{ $json.output.title }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        352,
+        -16
+      ],
+      "id": "45610081-d6c2-4b34-ac14-de9a83d256fe",
+      "name": "Create a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "IgHEFp8KiciEkpoo",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('AI Agent').item.json.output.resume }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        560,
+        -16
+      ],
+      "id": "5008eca4-c294-4df5-9f83-e94ca2858d2c",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "IgHEFp8KiciEkpoo",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Create a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search in Tavily": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a document": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a63b3164-8e96-40b2-9a4c-6b83a67ed99f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0a7e7a280b688703c0514eb4bf89df3d8a56a21a9fa6314fa2bd5d4349250336"
+  },
+  "id": "lDj0UFg4lOnBcO3f",
+  "tags": []
+}
